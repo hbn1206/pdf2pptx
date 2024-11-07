@@ -5,6 +5,7 @@ from pptx.util import Inches
 from tqdm import tqdm
 from io import BytesIO
 from PIL import Image
+import os
 
 # Streamlit UI
 st.title("PDF to PPTX Converter(by 석리송)")
@@ -14,7 +15,7 @@ st.write("Upload a PDF file to convert each page to a slide in a PPTX file.")
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
 # Convert PDF to PPTX
-def convert_pdf_to_pptx(pdf_data):
+def convert_pdf_to_pptx(pdf_data, output_filename):
     pdf_document = fitz.open("pdf", pdf_data)
     presentation = Presentation()
 
@@ -63,14 +64,17 @@ def convert_pdf_to_pptx(pdf_data):
 
 # Process PDF and provide download link
 if uploaded_file is not None:
+    # PDF 파일 이름에서 확장자를 제외하고 PPTX 파일 이름 생성
+    output_filename = os.path.splitext(uploaded_file.name)[0] + ".pptx"
+    
     st.write("Converting PDF to PPTX, please wait...")
-    pptx_data = convert_pdf_to_pptx(uploaded_file.read())
+    pptx_data = convert_pdf_to_pptx(uploaded_file.read(), output_filename)
     st.success("Conversion completed!")
 
     # Provide download link for PPTX
     st.download_button(
         label="Download PPTX file",
         data=pptx_data,
-        file_name="converted_presentation.pptx",
+        file_name=output_filename,
         mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
     )
